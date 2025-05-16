@@ -1,12 +1,18 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
+import { assets } from '../assets/assets';
 
 const Appointment = () => {
   const { docId } = useParams();
-  const { doctors } = useContext(AppContext);
+  const { doctors,currencySymbol } = useContext(AppContext);
+  const daysofWeek = ['Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon'];
+
 
   const [docInfo, setDocInfo] = useState(null);
+  const [docSlot, setDocSlot] = useState([]);
+  const[slotIndex, setSlotIndex] = useState(0);
+  const[slotTime, setSlotTime] = useState("");
 
   useEffect(() => {
     if (doctors && doctors.length > 0) {
@@ -16,28 +22,118 @@ const Appointment = () => {
     }
   }, [doctors, docId]);
 
+  const getAvailableSlots = async () => {
+    setDocSlot([]);
+    // getting current date
+    let today= new Date();
+    for(let i=0; i<7; i++){
+      // getting date with index
+     let currentDate = new Date(today);
+currentDate.setDate(today.getDate() + i);
+let dayDate = new Date(currentDate); // Preserve the actual date
+      // setting end time of date with index
+      let endTime= new Date();
+      endTime.setDate(today.getDate() + i);
+      endTime.setHours(21, 0, 0, 0);
+
+      // setting hours
+      if(today.getDate() === currentDate.getDate()){
+        currentDate.setHours(currentDate.getHours() > 10 ? currentDate.getHours()+1 : 10, 0, 0, 0);
+        currentDate.setMinutes(currentDate.getMinutes() > 30 ? 30 : 0); 
+      }else{
+        currentDate.setHours(10, 0, 0, 0);
+        currentDate.setMinutes(0, 0, 0);
+      }
+     let timeSlots= [];
+      while(currentDate <= endTime){
+        let formattedTime= currentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        // add slot to array
+        timeSlots.push({
+          datetime: new Date(currentDate),
+          time: formattedTime,
+        });
+        // incrementing 30 minutes
+        currentDate.setMinutes(currentDate.getMinutes() + 30);
+      }
+      setDocSlot((prevSlots) => [
+        ...prevSlots,
+        {
+          date: dayDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' }),
+          slots: timeSlots,
+        },
+      ]);
+
+
+
+  }
+}
+
+  useEffect(()=>{
+    getAvailableSlots();
+
+  },[docInfo]);
+
+  useEffect(()=>{
+    console.log(docSlot)
+
+  },[docSlot])
+
   if (!docInfo) {
     return <p>Loading doctor info...</p>;
   }
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">{docInfo.name}</h2>
-      <img 
-        src={docInfo.image} 
-        alt={docInfo.name} 
-        className="w-full max-w-md h-60 object-cover rounded-lg mb-4"
-        onError={e => { e.target.src = '/fallback-image.png'; }} // optional fallback image
-      />
-      <p><strong>Speciality:</strong> {docInfo.speciality}</p>
-      <p><strong>Degree:</strong> {docInfo.degree}</p>
-      <p><strong>Experience:</strong> {docInfo.experience}</p>
-      <p><strong>Fees:</strong> ${docInfo.fees}</p>
-      <p><strong>About:</strong> {docInfo.about}</p>
-      <p>
-        <strong>Address:</strong> {docInfo.address?.line1}, {docInfo.address?.line2}
+    <div>
+    {/*----------Doctor Details */}
+    <div className='flex flex-col sm:flex-row gap-4'>
+      <div>
+        <img className='bg-blue-400 w-full sm:max-w-72 rounded-lg' src={docInfo.image} alt="" />
+      </div>
+    <div className='flex-1 border border-white rounded-lg p-8 py-7 bg-white mx-2 sm:mx-0 mt-[-80px] sm:mt-0'>
+      {/**-------Doc Info: name,degree, experience------------  */}
+      <p className='flex items-center gap-2 text-2xl font-medium text-gray-950'>{docInfo.name}
+         <img className='w-5 ' src={assets.verified_icon} alt="" /></p>
+      <div className='flex items-center gap-2 text-gray-500 text-sm mt-1 '>
+        <p>{docInfo.degree}-{docInfo.speciality}</p>
+        <button className='py-0.5 px-2 border text-xs rounded-full '>{docInfo.experience}</button>
+      </div>
+      {/** -------Doctor About-------- */}
+      <div>
+        <p className='flex items-center gap-1 text-sm font-medium text-gray-900 mt-3'>About <img src={assets.info_icon} alt="" /></p>
+        <p className='text-sm text-gray-500 max-w-[700px] mt-1'>{docInfo.about}</p>
+      </div>
+      <p className='text-lg mt-4 font-medium text-gray-900'>
+        Appointment Fee: <span className='text-lg font-medium text-gray-900'>{currencySymbol}{docInfo.fees}</span>
       </p>
+
     </div>
+
+    </div>
+    {/**---------Available Slots */}
+    <div className='sm:ml-72 sm:pl-4 mt-4 font-medium text-gray-700 '>
+      <p>Booking slots</p>
+      <div className='flex gap-3 items-center w-full overflow-x-scroll mt-4 '>
+        {
+  docSlot.length > 0 && docSlot.map((item, index) => (
+    <div onClick={()=>setSlotIndex(index)} className={`text-center py-10 min-w-25 rounded-full cursor-pointer ${slotIndex=== index ? 'bg-blue-600 text-white': 'border border-gray-400'}`} key={index}>
+      
+      <p>{item.date}</p>
+    </div>
+  ))
+}
+ </div>
+ <div>
+ {docSlot.length > 0 && docSlot[slotIndex].slots.map((item, index) => (
+  <p key={index}>
+    {item.time.toLowerCase()}
+  </p>
+))}
+ </div>
+
+</div>
+
+</div>
   );
 };
 
