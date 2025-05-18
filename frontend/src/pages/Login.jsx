@@ -1,11 +1,104 @@
-import React from 'react'
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 
 const Login = () => {
-  return (
-    <div>
-      
-    </div>
-  )
-}
+  const [state, setState] = useState('Log In'); 
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
 
-export default Login
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (state === 'Sign Up') {
+      console.log('Signing up with:', { name, email, password });
+      
+    } else {
+      console.log('Logging in with:', { email, password });
+      
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-200 flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 60 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="w-full max-w-md bg-white shadow-2xl rounded-2xl px-8 py-10 md:px-12"
+      >
+        <h2 className="text-3xl font-bold text-center text-blue-600 mb-2">
+          {state === 'Sign Up' ? 'Create Account' : 'Welcome Back'}
+        </h2>
+        <p className="text-center text-sm text-gray-600 mb-6">
+          Please {state === 'Sign Up' ? 'sign up' : 'log in'} to book an appointment
+        </p>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {
+            state === 'Sign Up' ? (
+              <div>
+                <label className="block text-sm font-medium text-gray-600">Full Name</label>
+                <input
+                  type="text"
+                  required
+                  className="w-full px-4 py-3 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="Your Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+            ) : null
+          }
+
+          <div>
+            <label className="block text-sm font-medium text-gray-600">Email</label>
+            <input
+              type="email"
+              required
+              className="w-full px-4 py-3 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-600">Password</label>
+            <input
+              type="password"
+              required
+              className="w-full px-4 py-3 mt-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+
+          <motion.button
+            type="submit"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.97 }}
+            className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+          >
+            {state === 'Sign Up' ? 'Sign Up' : 'Log In'}
+          </motion.button>
+        </form>
+
+        <p className="text-center text-sm text-gray-500 mt-6">
+          {state === 'Sign Up'
+            ? 'Already have an account? '
+            : "Don't have an account? "}
+          <button
+            type="button"
+            onClick={() => setState(state === 'Sign Up' ? 'Log In' : 'Sign Up')}
+            className="text-blue-600 hover:underline font-medium"
+          >
+            {state === 'Sign Up' ? 'Log In' : 'Sign Up'}
+          </button>
+        </p>
+      </motion.div>
+    </div>
+  );
+};
+
+export default Login;
