@@ -19,41 +19,41 @@ const MyProfile = () => {
   const [isEdit, setIsEdit] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-200 p-6 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-200 p-4 sm:p-6 flex items-center justify-center">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="w-full max-w-3xl bg-white shadow-2xl rounded-2xl p-8"
+        className="w-full max-w-3xl bg-white shadow-2xl rounded-2xl p-4 sm:p-8"
       >
-        <div className="flex flex-col items-center space-y-4 mb-8">
+        <div className="flex flex-col items-center space-y-4 mb-6">
           <motion.img
             src={userData.image}
             alt="Profile"
-            className="w-28 h-28 rounded-full border-4 border-purple-400 shadow-md"
+            className="w-24 sm:w-28 h-24 sm:h-28 rounded-full border-4 border-purple-400 shadow-md"
             whileHover={{ scale: 1.05 }}
           />
           {isEdit ? (
             <input
               type="text"
-              className="text-xl font-semibold text-center border-b border-gray-300 focus:outline-none focus:border-blue-400"
+              className="text-xl font-semibold text-center border-b border-gray-300 focus:outline-none focus:border-blue-400 w-full sm:w-auto"
               value={userData.name}
               onChange={(e) =>
                 setUserData((prev) => ({ ...prev, name: e.target.value }))
               }
             />
           ) : (
-            <h2 className="text-2xl font-bold text-gray-800">{userData.name}</h2>
+            <h2 className="text-2xl font-bold text-gray-800 text-center">{userData.name}</h2>
           )}
         </div>
 
         {/* Contact Information */}
         <section className="mb-6">
           <h3 className="text-lg font-semibold text-blue-600 mb-3">Contact Information</h3>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
             <div>
               <label className="text-sm text-gray-500">Email</label>
-              <p className="font-medium">{userData.email}</p>
+              <p className="font-medium break-words">{userData.email}</p>
             </div>
             <div>
               <label className="text-sm text-gray-500">Phone</label>
@@ -76,7 +76,7 @@ const MyProfile = () => {
                 <>
                   <input
                     type="text"
-                    className="w-full border px-3 py-2 rounded-lg mb-2"
+                    className="w-full border px-3 py-2 rounded-lg mt-1 mb-2"
                     value={userData.address.line1}
                     onChange={(e) =>
                       setUserData((prev) => ({
@@ -111,7 +111,7 @@ const MyProfile = () => {
         {/* Basic Information */}
         <section className="mb-6">
           <h3 className="text-lg font-semibold text-blue-600 mb-3">Basic Information</h3>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
             <div>
               <label className="text-sm text-gray-500">Gender</label>
               {isEdit ? (

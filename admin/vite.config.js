@@ -5,16 +5,10 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  theme:{
-    extends:{
-      colors:{
-        'primary': "#5f6FFF"
-      }
-    },
-
-  },
+  
   plugins: [
-    tailwindcss(),
+     tailwindcss(),
     react()],
-    server:{port:5173}
+ 
+  server:{port:5174}
 })
