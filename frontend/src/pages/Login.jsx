@@ -1,22 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useContext } from 'react';
+import { AppContext } from '../context/AppContext'; 
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const [state, setState] = useState('Log In'); 
+
+const {backendUrl, token, setToken}=  useContext(AppContext);
+const navigate = useNavigate();
+
+  const [state, setState] = useState(); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (state === 'Sign Up') {
-      console.log('Signing up with:', { name, email, password });
-      
-    } else {
-      console.log('Logging in with:', { email, password });
-      
+    try{
+      if(state=='Sign Up'){
+        const {data}= await axios.post(`${backendUrl}/api/user/register`,{name,password,email} )
+          if(data.success){
+            localStorage.setItem(`token`, data.token);
+            setToken(data.token);
+          }else{
+            toast.error(data.message );
+          }
+      }else{
+        const {data}= await axios.post(`${backendUrl}/api/user/login`,{email,password} )
+          if(data.success){
+            localStorage.setItem(`token`, data.token);
+            setToken(data.token);
+          }else{
+            toast.error(data.message );
+          }
+      }
+
+    }catch(error){
+      toast.error(error.message,'An error occurred. Please try again later.');
+
     }
   };
+  useEffect(()=>{
+    if(token){
+      navigate('/');
+     
+
+    }
+
+  },[token])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-200 flex items-center justify-center p-4">

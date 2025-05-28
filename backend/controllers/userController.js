@@ -1,6 +1,6 @@
 import validator from 'validator'
 import bcrypt from 'bcrypt'
-import userModel from '../models/userModel';
+import userModel from '../models/userModel.js';
 import jwt from 'jsonwebtoken'
 
 
@@ -65,4 +65,60 @@ const registerUser= async(req,res)=>{
 
     }
 }
-export {registerUser}
+// API for user login
+const loginUser= async(req,res)=>{
+    try{
+        const {email, password}= req.body;
+        const user= await userModel.findOne({email})
+        if(!user){
+          return  res.json({
+                success:true,
+                message: "User does not exist"
+            })
+
+        }
+
+        const isMatch=  await bcrypt.compare(password, user.password)
+        if(isMatch){
+            const token= jwt.sign({
+                id:user._id
+
+            }, process.env.JWT_SECRET)
+           return  res.json({
+                success:true,
+               token
+            })
+        }else{
+          return  res.json({
+                succes:false,
+                message: "Please Enter the valid password"
+            })
+        }
+
+    }catch(error){
+       return res.json({
+            succes:true,
+            message: error.message
+        })
+
+    }
+}
+
+// API to get user profile data
+const getProfile= async(req,res)=>{
+    try{
+        const{userId}= req.body
+        const userData= await userModel.findById(userId).select('-password')
+        res.json({success:true, userData})
+
+
+    }catch(error){
+           return res.json({
+            succes:true,
+            message: error.message
+        })
+
+    }
+
+}
+export {registerUser, loginUser, getProfile}
