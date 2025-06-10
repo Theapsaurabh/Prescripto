@@ -19,7 +19,7 @@ const navigate = useNavigate();
   const handleSubmit = async (event) => {
     event.preventDefault();
     try{
-      if(state=='Sign Up'){
+      if(state==='Sign Up'){
         const {data}= await axios.post(`${backendUrl}/api/user/register`,{name,password,email} )
           if(data.success){
             localStorage.setItem(`token`, data.token);

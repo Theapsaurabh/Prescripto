@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 
+
 dotenv.config()
 // user Authentication Middleware
 const authUser= async(req,res,next)=>{
@@ -14,14 +15,8 @@ const authUser= async(req,res,next)=>{
             })
         }
         const token_decode= jwt.verify(token,process.env.JWT_SECRET)
-        if(token_decode !== process.env.ADMIN_EMAIL + process.env.ADMIN_PASSWORD){
-           return res.status(401).json({
-                success:false,
-                message: "Not Authorized Login Again"
-
-            })
-        }
-        req.body.userId= token_decode.id
+        req.user = { userId: token_decode.id };
+        
         next()
 
 

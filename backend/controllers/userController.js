@@ -2,6 +2,7 @@ import validator from 'validator'
 import bcrypt from 'bcrypt'
 import userModel from '../models/userModel.js';
 import jwt from 'jsonwebtoken'
+import {v2 as cloudinary} from 'cloudinary'
 
 
 // API to register user
@@ -72,7 +73,7 @@ const loginUser= async(req,res)=>{
         const user= await userModel.findOne({email})
         if(!user){
           return  res.json({
-                success:true,
+                success:false,
                 message: "User does not exist"
             })
 
@@ -90,14 +91,14 @@ const loginUser= async(req,res)=>{
             })
         }else{
           return  res.json({
-                succes:false,
+                success:false,
                 message: "Please Enter the valid password"
             })
         }
 
     }catch(error){
        return res.json({
-            succes:true,
+            success:false,
             message: error.message
         })
 
@@ -105,20 +106,84 @@ const loginUser= async(req,res)=>{
 }
 
 // API to get user profile data
-const getProfile= async(req,res)=>{
+const getProfile= async (req,res)=>{
     try{
-        const{userId}= req.body
+        const { userId } = req.user;
+        if (!userId) {
+            return res.json({
+                success: false,
+                message: "User ID not provided",
+            });
+        }
         const userData= await userModel.findById(userId).select('-password')
         res.json({success:true, userData})
 
 
     }catch(error){
            return res.json({
-            succes:true,
+            success:false,
             message: error.message
         })
 
     }
 
 }
-export {registerUser, loginUser, getProfile}
+
+// API to update user profile
+const updateProfile = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const { name, phone, address, dob, gender } = req.body;
+        const imageFile = req.file;
+
+        if (!name || !phone || !dob || !gender) {
+            return res.json({
+                success: false,
+                message: "Data Missing"
+            });
+        }
+
+        const updateData = {
+            name,
+            phone,
+            dob,
+            gender,
+            address: JSON.parse(address),
+        };
+
+        
+        if (imageFile) {
+            const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
+                resource_type: 'image'
+            });
+            updateData.image = imageUpload.secure_url;
+        }
+
+        
+        const updatedUser = await userModel.findByIdAndUpdate(userId, updateData, { new: true });
+
+        if (!updatedUser) {
+            return res.json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        res.json({
+            success: true,
+            message: "Profile Updated",
+            user: updatedUser
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+
+
+export {registerUser, loginUser, getProfile, updateProfile}

@@ -1,24 +1,16 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { motion } from "framer-motion";
-import { assets } from "../assets/assets";
+
+
+import { AppContext } from "../context/AppContext";
 
 const MyProfile = () => {
-  const [userData, setUserData] = useState({
-    name: "Edward Vincent",
-    image: assets.profile_pic,
-    email: "richardjamesa@gmail.com",
-    phone: "09123456789",
-    address: {
-      line1: "1234 Street cross, Richmond",
-      line2: "Circle, Church Road, London",
-    },
-    gender: "Male",
-    dob: "1990-01-01",
-  });
+  const {userData, setUserData} = useContext(AppContext);
+
 
   const [isEdit, setIsEdit] = useState(false);
 
-  return (
+  return userData && (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-200 p-4 sm:p-6 flex items-center justify-center">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
