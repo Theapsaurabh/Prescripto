@@ -1,17 +1,20 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
 import { assets } from '../assets/assets';
 import RelatedDoctors from '../components/RelatedDoctors';
 import { motion } from 'framer-motion';
+import { toast } from 'react-toastify';
+import axios from 'axios';
 
-const Appointment = () => {
+function Appointment() {
   const { docId } = useParams();
-  const { doctors, currencySymbol } = useContext(AppContext);
+  const { doctors, currencySymbol, backendUrl, token, getDoctorsData } = useContext(AppContext);
   const [docInfo, setDocInfo] = useState(null);
   const [docSlot, setDocSlot] = useState([]);
   const [slotIndex, setSlotIndex] = useState(0);
-  const [slotTime, setSlotTime] = useState("");
+  const [slotTime, setSlotTime] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (doctors && doctors.length > 0) {
@@ -41,11 +44,23 @@ const Appointment = () => {
       let timeSlots = [];
       while (currentDate <= endTime) {
         let formattedTime = currentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        let day = currentDate.getDate(); 
+        let month= currentDate.getMonth() + 1; 
+        let year= currentDate.getFullYear();
+        const slotDate = `${day}_${month}_${year}`;
+        const slotTime = formattedTime;
+        const isSlotAvailable = !(docInfo.slots_booked[slotDate]?.includes(slotTime));
 
-        timeSlots.push({
+        if(isSlotAvailable){
+          // add slot to array
+          timeSlots.push({
           datetime: new Date(currentDate),
           time: formattedTime,
         });
+        }
+
+
+        
 
         currentDate.setMinutes(currentDate.getMinutes() + 30);
       }
@@ -60,11 +75,63 @@ const Appointment = () => {
     }
   };
 
+  const bookAppointment = async () => {
+    if (!token) {
+      toast.warn('Please login to book an appointment.');
+      return navigate('/login');
+    }
+
+    if (!slotTime) {
+      toast.warn('Please select a time slot.');
+      return;
+    }
+
+    try {
+      const selectedSlot = docSlot[slotIndex].slots.find(slot => slot.time === slotTime);
+      const datetime = selectedSlot?.datetime;
+
+      if (!datetime) {
+        toast.error('Invalid slot selected.');
+        return;
+      }
+
+      const day = datetime.getDate();
+      const month = datetime.getMonth() + 1;
+      const year = datetime.getFullYear();
+      const slotDate = `${day}_${month}_${year}`;
+
+      const payload = {
+        docId,
+        slotDate,
+        slotTime,
+      };
+
+      const { data } = await axios.post(`${backendUrl}/api/user/book-appointment`, payload, {
+        headers: {
+          token,
+        },
+      });
+
+      if (data.success) {
+        toast.success(data.message);
+        getDoctorsData();
+        navigate('/my-appointments');
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message || 'An error occurred while booking the appointment.');
+    }
+  };
+
   useEffect(() => {
     if (docInfo) getAvailableSlots();
   }, [docInfo]);
 
-  if (!docInfo) return <p>Loading doctor info...</p>;
+  if (!docInfo) {
+    return <p>Loading doctor info...</p>;
+  }
 
   return (
     <div>
@@ -76,7 +143,7 @@ const Appointment = () => {
         className='flex flex-col sm:flex-row gap-4'
       >
         <motion.div whileHover={{ scale: 1.03 }} className='rounded-xl overflow-hidden shadow-md'>
-          <img className='bg-blue-400 w-full sm:max-w-72 rounded-lg' src={docInfo.image} alt="" />
+          <img className='bg-blue-400 w-full sm:max-w-72 rounded-lg' src={docInfo.image} alt="Doctor" />
         </motion.div>
 
         <motion.div
@@ -118,7 +185,10 @@ const Appointment = () => {
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setSlotIndex(index)}
+              onClick={() => {
+                setSlotIndex(index);
+                setSlotTime('');
+              }}
               key={index}
               className={`min-w-44 px-4 py-6 rounded-xl text-center transition cursor-pointer ${
                 slotIndex === index ? 'bg-blue-600 text-white shadow-md' : 'border border-gray-300 bg-white'
@@ -149,6 +219,7 @@ const Appointment = () => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           className='bg-blue-500 text-white text-sm font-light px-14 py-3 rounded-full my-6 shadow-lg hover:bg-blue-600 transition'
+          onClick={bookAppointment}
         >
           Book an Appointment
         </motion.button>
@@ -158,6 +229,6 @@ const Appointment = () => {
       <RelatedDoctors docId={docId} speciality={docInfo.speciality} />
     </div>
   );
-};
+}
 
 export default Appointment;

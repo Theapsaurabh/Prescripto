@@ -1,7 +1,8 @@
 import { createContext, useEffect, useState } from "react";
 
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "react-toastify"
+;
 
 import App from "../App";
 export const AppContext = createContext();
@@ -60,7 +61,7 @@ export const AppProvider = (props) => {
 
 
      const value={
-        doctors, currencySymbol,
+        doctors,getDoctorsData, currencySymbol,
         token, setToken,
         backendUrl,
         userData, setUserData,
