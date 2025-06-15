@@ -5,6 +5,7 @@ import axios from "axios";
 import Doctors from "./Doctors";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -12,6 +13,9 @@ const MyAppointment = () => {
   const {backendUrl, token, getDoctorsData } = useContext(AppContext);
   const [appointments, setAppointments] =useState([]);
   const months = [" ","jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+  const navigate = useNavigate();
+
+
   const slotDateFormate= (slotDate)=>{
     const dateArray= slotDate.split('_');
     return dateArray[0]+ ' ' + months[parseInt(dateArray[1])] + ' ' + dateArray[2];
@@ -55,7 +59,59 @@ const MyAppointment = () => {
 
     }
    }
+   const initPay= (order)=>{
+    const options={
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: order.amount,
+      currency: order.currency,
+      name: "Appointment Payment",
+      description: "Payment for appointment booking",
+      order_id: order.id,
 
+     receipt: order.receipt, 
+
+      handler: async (response) => {
+  console.log(response);
+  try {
+    const { data } = await axios.post(`${backendUrl}/api/user/verifyRazorpay`, {
+      response,
+    }, {
+      headers: { token }
+    });
+
+    if (data.success) {
+      getUserAppointments();
+      navigate('/my-appointments');
+      toast.success("Payment successful! Your appointment is confirmed.");
+    } else {
+      toast.error(data.message || "Payment verification failed. Please try again.");
+    }
+
+  } catch (error) {
+    console.error(error);
+    toast.error(error.message || "Verification error");
+  }
+}
+
+    }
+    const rzp= new window.Razorpay(options);
+    rzp.open();
+
+   }
+
+  const appointmentRazorpay= async(appointmentId)=>{
+    try{
+      const {data}= await axios.post(`${backendUrl}/api/user/payment-razorpay`, {appointmentId}, {headers:{token}});
+      if(data.success){
+       initPay(data.order);
+      }
+
+    }catch(error){
+      console.log(error)
+
+    }
+
+  }
 
    useEffect(()=>{
     if(token) getUserAppointments();
@@ -105,13 +161,15 @@ const MyAppointment = () => {
 
             {/* Action Buttons */}
             <div className="flex justify-center gap-4">
-             { !item.cancelled &&  <button className="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white transition duration-300 shadow-md text-sm">
+              {!item.cancelled && item.payment && <button className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white transition duration-300 shadow-md text-sm">
+                Paid </button>}
+             { !item.cancelled && !item.payment && <button onClick={()=>appointmentRazorpay(item._id)} className="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white transition duration-300 shadow-md text-sm">
                 Pay Online
               </button>}
-              {!item.cancelled &&  <button onClick={ ()=>cancelAppointment(item._id)} className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition duration-300 shadow-md text-sm">
+              {!item.cancelled   && <button onClick={ ()=>cancelAppointment(item._id)} className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition duration-300 shadow-md text-sm">
                 Cancel
               </button> }
-              {item.cancelled && <button className="px-4 py-2 rounded-lg bg-gray-500 text-white transition duration-300 shadow-md text-sm">
+              {item.cancelled  && <button className="px-4 py-2 rounded-lg bg-gray-500 text-white transition duration-300 shadow-md text-sm">
                 Cancelled
               </button>}
             </div>
