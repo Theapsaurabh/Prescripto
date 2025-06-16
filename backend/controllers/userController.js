@@ -307,7 +307,7 @@ const cancelAppointment = async (req, res) => {
             });
         }
 
-        // Verify appointment belongs to user
+       
         if (appointmentData.userId.toString() !== userId) {
             return res.json({
                 success: false,
@@ -315,10 +315,10 @@ const cancelAppointment = async (req, res) => {
             });
         }
 
-        // Mark appointment as cancelled
+        
         await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true });
 
-        // Releasing Doctor Slots 
+        
         const { docId, slotDate, slotTime } = appointmentData;
         const docData = await doctorModel.findById(docId);
 

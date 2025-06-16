@@ -6,6 +6,8 @@ import jwt from "jsonwebtoken"
 
 import dotenv from 'dotenv'
 import doctorModel from '../models/doctorModel.js'
+import appointmentModel from '../models/appointmentModel.js'
+import userModel from '../models/userModel.js'
 dotenv.config()
 
 
@@ -46,7 +48,7 @@ const addDoctor = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
         
 
-        // ✅ Upload image to Cloudinary (here's your new code)
+        // ✅ Upload image to Cloudinary 
         const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
   
   use_filename: true,
@@ -142,6 +144,105 @@ const allDoctors= async (req,res)=>{
     }
 
 }
+// API to get all appointment list
+const appointmentAdmin= async(req,res)=>{
+    try{
+        const appointments= await appointmentModel.find({})
+        res.json({
+            success:true,
+            appointments
+        })
+
+    }catch(error){
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+
+    }
+
+}
+// API for appointment cancellation
+const AppointmentCancel = async (req, res) => {
+    try {
+        const { appointmentId } = req.body;
+        
+        if (!appointmentId) {
+            return res.json({
+                success: false,
+                message: "Appointment ID is required"
+            });
+        }
+
+        const appointmentData = await appointmentModel.findById(appointmentId);
+
+        if (!appointmentData) {
+            return res.json({
+                success: false,
+                message: "Appointment not found"
+            });
+        }
+
+       
+
+        
+        await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true });
+
+        
+        const { docId, slotDate, slotTime } = appointmentData;
+        const docData = await doctorModel.findById(docId);
+
+        if (docData && docData.slots_booked && docData.slots_booked[slotDate]) {
+            docData.slots_booked[slotDate] = docData.slots_booked[slotDate].filter(e => e !== slotTime);
+
+            await doctorModel.findByIdAndUpdate(docId, { slots_booked: docData.slots_booked });
+        }
+
+        res.json({
+            success: true,
+            message: "Appointment Cancelled"
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// API to get Dashboard Data for Admin panel
+const adminDashboard= async(req,res)=>{
+    try{
+        const doctors= await doctorModel.find({})
+        const user= await userModel.find({})
+        const appointments= await appointmentModel.find({})
+        const dashData={
+            doctors:doctors.length,
+            appointments: appointments.length,
+            patients:user.length,
+            latestAppointments:appointments.reverse().slice(0,5),
 
 
-export { addDoctor, loginAdmin, allDoctors };
+        }
+        res.json({
+            success:true,
+            dashData
+        })
+
+
+
+    }catch(error){
+         console.log(error);
+        res.json({
+            success: false,
+            message: error.message
+        });
+
+    }
+
+}
+
+export { addDoctor, loginAdmin, allDoctors,appointmentAdmin, AppointmentCancel, adminDashboard };
