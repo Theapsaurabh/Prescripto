@@ -1,8 +1,6 @@
 import React, { useContext, useState } from "react";
-import { motion } from "framer-motion";
 import axios from "axios";
 import { toast } from "react-toastify";
-
 import { AppContext } from "../context/AppContext";
 import { assets } from "../assets/assets";
 
@@ -65,7 +63,7 @@ const MyProfile = () => {
                 <img
                   src={image ? URL.createObjectURL(image) : userData.image}
                   alt="Profile"
-                  className="w-24 sm:w-28 h-24 sm:h-28 rounded-full border-4 border-purple-400 shadow-md"
+                  className="w-24 sm:w-28 h-24 sm:h-28 rounded-full border-4 border-purple-400 shadow-md transition-transform duration-300 hover:scale-105"
                 />
                 {!image && (
                   <img
@@ -83,11 +81,10 @@ const MyProfile = () => {
               />
             </label>
           ) : (
-            <motion.img
+            <img
               src={userData.image}
               alt="Profile"
-              className="w-24 sm:w-28 h-24 sm:h-28 rounded-full border-4 border-purple-400 shadow-md"
-              whileHover={{ scale: 1.05 }}
+              className="w-24 sm:w-28 h-24 sm:h-28 rounded-full border-4 border-purple-400 shadow-md transition-transform duration-300 hover:scale-105"
             />
           )}
 
@@ -107,12 +104,7 @@ const MyProfile = () => {
           )}
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-3xl bg-white shadow-2xl rounded-2xl p-4 sm:p-8"
-        >
+        <div className="w-full max-w-3xl bg-white shadow-2xl rounded-2xl p-4 sm:p-8 transform transition-all duration-700 opacity-100">
           {/* Contact Information */}
           <section className="mb-6">
             <h3 className="text-lg font-semibold text-blue-600 mb-3">
@@ -233,9 +225,7 @@ const MyProfile = () => {
           </section>
 
           {/* Action Button */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <button
             onClick={() => {
               if (isEdit) {
                 updateUserProfileData();
@@ -243,11 +233,11 @@ const MyProfile = () => {
                 setIsEdit(true);
               }
             }}
-            className="w-full mt-4 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold rounded-xl shadow-lg transition-all"
+            className="w-full mt-4 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
           >
             {isEdit ? "Save Information" : "Edit Profile"}
-          </motion.button>
-        </motion.div>
+          </button>
+        </div>
       </div>
     )
   );

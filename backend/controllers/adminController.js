@@ -12,7 +12,7 @@ dotenv.config()
 
 
 
-// API for adding doctor
+
 const addDoctor = async (req, res) => {
     try {
         const { name, email, password, speciality, experience, degree, about, fees, address } = req.body;
@@ -97,7 +97,8 @@ const loginAdmin= async(req,res)=>{
     try {
         const {email,password}= req.body;
         if(email=== process.env.ADMIN_EMAIL && password=== process.env.ADMIN_PASSWORD){
-           const token= jwt.sign(email+password,process.env.JWT_SECRET ) 
+           const token = jwt.sign({ email }, process.env.JWT_SECRET);
+
            res.status(200).json({
             success:true,
             token

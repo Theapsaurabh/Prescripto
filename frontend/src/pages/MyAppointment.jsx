@@ -127,54 +127,76 @@ const MyAppointment = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         {appointments.map((item, index) => (
-          <div
-            key={index}
-            className="bg-black/70 rounded-3xl p-6 md:p-8 shadow-xl backdrop-blur-md hover:shadow-pink-400 transition duration-500"
-          >
-            {/* Profile section */}
-            <div className="flex flex-col items-center text-center mb-6">
-              <div className="w-32 h-32 bg-indigo-50 rounded-full shadow-lg flex items-center justify-center mb-4">
-                <img
-                  src={item.docData.image}
-                  alt={`Dr. ${item.docData.name}`}
-                  className="w-28 h-28 rounded-full object-cover border-2 border-white shadow-md"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = "https://via.placeholder.com/128";
-                  }}
-                />
-              </div>
-              <h3 className="text-xl font-semibold text-white">Dr. {item.docData.name}</h3>
-              <p className="text-sm text-pink-400">{item.docData.speciality}</p>
-            </div>
+         <div
+  key={index}
+  className="bg-black/70 rounded-3xl p-8 md:p-10 shadow-xl backdrop-blur-md hover:shadow-pink-400 transition duration-500"
+>
+  {/* Doctor Profile Image & Info */}
+  <div className="flex flex-col items-center text-center mb-8">
+    <div className="w-40 h-40 bg-indigo-50 rounded-full shadow-lg flex items-center justify-center mb-4">
+      <img
+        src={item.docData.image}
+        alt={`Dr. ${item.docData.name}`}
+        className="w-36 h-36 rounded-full object-cover border-2 border-white shadow-md"
+        onError={(e) => {
+          e.target.onerror = null;
+          e.target.src = "https://via.placeholder.com/128";
+        }}
+      />
+    </div>
+    <h3 className="text-2xl font-bold text-white">Dr. {item.docData.name}</h3>
+    <p className="text-base text-pink-400">{item.docData.speciality}</p>
+  </div>
 
-            {/* Address section */}
-            <div className="mb-4 text-center text-sm space-y-1">
-              <p className="font-semibold text-white">Address:</p>
-              <p className="text-slate-300">{item.docData.address.line1}</p>
-              <p className="text-slate-300">{item.docData.address.line2}</p>
-            </div>
+  {/* Address */}
+  <div className="mb-6 text-center text-base space-y-1">
+    <p className="font-semibold text-white">Address:</p>
+    <p className="text-slate-300">{item.docData.address.line1}</p>
+    <p className="text-slate-300">{item.docData.address.line2}</p>
+  </div>
 
-            {/* Appointment time */}
-            <p className="text-sm text-center font-medium text-pink-300 mb-6">
-              <span className="font-semibold text-white">Date & Time:</span> {slotDateFormate(item.slotDate)} | {item.slotTime}
-            </p>
+  {/* Date and Time */}
+  <p className="text-base text-center font-medium text-pink-300 mb-8">
+    <span className="font-semibold text-white">Date & Time:</span>{" "}
+    {slotDateFormate(item.slotDate)} | {item.slotTime}
+  </p>
 
-            {/* Action Buttons */}
-            <div className="flex justify-center gap-4">
-              {!item.cancelled && item.payment && <button className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white transition duration-300 shadow-md text-sm">
-                Paid </button>}
-             { !item.cancelled && !item.payment && <button onClick={()=>appointmentRazorpay(item._id)} className="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white transition duration-300 shadow-md text-sm">
-                Pay Online
-              </button>}
-              {!item.cancelled   && <button onClick={ ()=>cancelAppointment(item._id)} className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition duration-300 shadow-md text-sm">
-                Cancel
-              </button> }
-              {item.cancelled  && <button className="px-4 py-2 rounded-lg bg-gray-500 text-white transition duration-300 shadow-md text-sm">
-                Cancelled
-              </button>}
-            </div>
-          </div>
+  {/* Buttons */}
+  <div className="flex justify-center gap-4 flex-wrap">
+    {!item.cancelled && item.payment && !item.isCompleted && (
+      <button className="px-6 py-3 rounded-lg bg-green-500 hover:bg-green-600 text-white transition duration-300 shadow-md text-base">
+        Paid
+      </button>
+    )}
+    {!item.cancelled && !item.payment && !item.isCompleted && (
+      <button
+        onClick={() => appointmentRazorpay(item._id)}
+        className="px-6 py-3 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white transition duration-300 shadow-md text-base"
+      >
+        Pay Online
+      </button>
+    )}
+    {!item.cancelled && !item.isCompleted && (
+      <button
+        onClick={() => cancelAppointment(item._id)}
+        className="px-6 py-3 rounded-lg bg-red-500 hover:bg-red-600 text-white transition duration-300 shadow-md text-base"
+      >
+        Cancel
+      </button>
+    )}
+    {item.cancelled && !item.isCompleted && (
+      <button className="px-6 py-3 rounded-lg bg-gray-500 text-white transition duration-300 shadow-md text-base">
+        Cancelled
+      </button>
+    )}
+    {item.isCompleted && (
+      <button className="px-6 py-3 rounded-lg bg-green-600 text-white transition duration-300 shadow-md text-base">
+        Completed
+      </button>
+    )}
+  </div>
+</div>
+
         ))}
       </div>
     </div>

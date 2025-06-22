@@ -51,7 +51,7 @@ const Navbar = () => {
           : <button onClick={()=>navigate('/login')} className='bg-blue-400 text-white px-8 py-3 rounded-full font-light hidden md:block'>Create Account</button>
         }
         <img onClick={()=>setShowMenu(true)} className='w-6 md:hidden ' src={assets.menu_icon} alt="" />
-        {/** ------Mobile Menu-------- */}
+        
        
 <div className={`${showMenu ? 'fixed top-0 right-0 w-4/5 h-full' : 'h-0 w-0'} md:hidden z-50 overflow-hidden bg-white shadow-lg transition-all duration-300`}>
   <div className="flex items-center justify-between p-4 border-b border-gray-300">

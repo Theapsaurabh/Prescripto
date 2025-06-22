@@ -12,12 +12,12 @@ const AddDoctor = () => {
     const[doctorPassword, setDoctorPassword] =useState('');
     const[doctorExperience, setDoctorExperience] =useState('1 Year');
     const[doctorFee, setDoctorFee] =useState('');
-    const[doctorSpeciality, setDoctorSpeciality] =useState('general physician');
+    const[doctorSpeciality, setDoctorSpeciality] =useState('General Physician');
     const[doctorEducation, setDoctorEducation] =useState('');
     const[doctorAddress1, setDoctorAddress1] =useState('');
     const[doctorAddress2, setDoctorAddress2] =useState('');
     const[doctorAbout, setDoctorAbout] =useState('');
-    const {backend_url, aToken} = useContext(AdminContext);
+    const {backendUrl, aToken} = useContext(AdminContext);
 
 
     const onSubmitHandler=async (event)=>{
@@ -28,26 +28,32 @@ const AddDoctor = () => {
 
         }
         const formData = new FormData();
-        formData.append('doctorImage', doctorImage);
-        formData.append('doctorName', doctorName);
-        formData.append('doctorEmail', doctorEmail);
-        formData.append('doctorPassword', doctorPassword);
-        formData.append('doctorExperience', doctorExperience);
-        formData.append('doctorFee',Number(doctorFee) );
-        formData.append('doctorSpeciality', doctorSpeciality);
-        formData.append('doctorEducation', doctorEducation);
-        formData.append('doctorAddress1', doctorAddress1);
-        formData.append('doctorAddress2', doctorAddress2);
-        formData.append('doctorAbout', doctorAbout);
+        formData.append('image', doctorImage);
+        formData.append('name', doctorName);
+        formData.append('email', doctorEmail);
+        formData.append('password', doctorPassword);
+        formData.append('speciality', doctorSpeciality);
+        formData.append('experience', doctorExperience);
+        formData.append('degree', doctorEducation);
+        formData.append('about', doctorAbout);
+        formData.append('fees', doctorFee);
+
+        formData.append('address', JSON.stringify({
+  address1: doctorAddress1,
+  address2: doctorAddress2
+}));
+
         // console log fromdata
         formData.forEach((value,key)=>{
           console.log(`${key}:${value}`)
         })
-        const {data}= await axios.post(`${backend_url}/admin/add-doctor`, formData, {
+        const {data}= await axios.post(`${backendUrl}/api/admin/add-doctor`, formData, {
           headers: {
-            aToken
-          }
+  'atoken': localStorage.getItem('aToken')
+  
+}
         });
+        console.log(aToken)
         if(data.success){
           toast.success(data.message);
           setDoctorImage(false);
@@ -56,7 +62,8 @@ const AddDoctor = () => {
           setDoctorPassword('');
           setDoctorExperience('1 Year');
           setDoctorFee('');
-          setDoctorSpeciality('general physician');
+          setDoctorSpeciality('General Physician');
+
           setDoctorEducation('');
           setDoctorAddress1('');
           setDoctorAddress2('');
@@ -83,7 +90,7 @@ const AddDoctor = () => {
       <form onSubmit={onSubmitHandler} className="m-5 w-full ">
         <p className="mb-3 text-lg font-medium ">Add Doctor</p>
         <div className="bg-white px-8 py-8 border rounded w-full max-w-4xl max-h-[80vh] overflow-y-scroll">
-          <div className="flex item-center gap-4 mb-8 text-gray-500">
+          <div className="flex items-center gap-4 mb-8 text-gray-500">
             <label htmlFor="doc-img">
               <img className="w-16 bg-gray-100 rounded-full cursor-pointer " src={doctorImage ? URL.createObjectURL(doctorImage):  assets.upload_area} alt="" />
             </label>
@@ -131,7 +138,7 @@ const AddDoctor = () => {
               </div>
             </div>
             <div>
-              <div className="w-full lg:flex-1 flex flec-col gap-4">
+              <div className="w-full lg:flex-1 flex flex-col gap-4">
                 <p>Speciality</p>
                 <select onChange={(e)=>setDoctorSpeciality(e.target.value)} value={doctorSpeciality} name="" id="">
                   <option value="General Physician">General Physician</option>

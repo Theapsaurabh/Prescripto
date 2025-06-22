@@ -16,6 +16,7 @@ const [dashData, setDashData] = useState(false)
 
  const backendUrl = import.meta.env.VITE_BACKEND_URL
  const getAllDoctors= async()=>{
+    console.log("Token test:", aToken);
     try{
         const {data}= await axios.post(backendUrl+'/api/admin/all-doctors', {},{headers:{aToken}} )
         if(data.success){
