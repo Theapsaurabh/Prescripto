@@ -14,7 +14,7 @@ const [appointments, setAppointments] = useState([])
 const [dashData, setDashData] = useState(false)
 
 
- const backendUrl = https://prescripto-backend-b806.onrender.com
+ const backendUrl = "https://prescripto-backend-b806.onrender.com"
  const getAllDoctors= async()=>{
     console.log("Token test:", aToken);
     try{
