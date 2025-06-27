@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 export const DoctorContext = createContext()
 const DoctorContextProvider = (props) => {
-    const backendUrl = https://prescripto-backend-b806.onrender.com
+    const backendUrl = "https://prescripto-backend-b806.onrender.com"
     const[dToken, setDToken] = useState(localStorage.getItem('dToken')? localStorage.getItem('dToken') : '');
     const [appointments, setAppointments] = useState([]);
     const [dashData, setDashData] = useState(false);
